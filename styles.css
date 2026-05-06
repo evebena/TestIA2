@@ -1,0 +1,226 @@
+:root {
+  --ink: #172033;
+  --paper: #fffaf2;
+  --glass: rgba(255, 255, 255, 0.72);
+  --accent: #ff6fae;
+  --accent-2: #66d7a4;
+  --shadow: 0 26px 70px rgba(30, 34, 55, 0.24);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: "Nunito", system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 12% 15%, rgba(255, 190, 221, 0.9), transparent 28rem),
+    radial-gradient(circle at 88% 12%, rgba(255, 228, 122, 0.78), transparent 25rem),
+    linear-gradient(135deg, #b8f2d4 0%, #f8d4e4 42%, #d7e8ff 100%);
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: auto;
+  border-radius: 999px;
+  filter: blur(8px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+body::before {
+  width: 24rem;
+  height: 24rem;
+  right: -6rem;
+  bottom: -4rem;
+  background: conic-gradient(from 180deg, #ff9c5a, #f6df6c, #9be1ff, #d9c5ff, #ff9c5a);
+}
+
+body::after {
+  width: 16rem;
+  height: 16rem;
+  left: -4rem;
+  bottom: 14rem;
+  background: radial-gradient(circle, #ffffff, #9bd8ff 62%, transparent 70%);
+}
+
+.shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 36px 0 44px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 24px;
+  align-items: end;
+  margin-bottom: 22px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7758ff;
+}
+
+h1 {
+  max-width: 780px;
+  margin: 0;
+  font-size: clamp(2.4rem, 7vw, 5.8rem);
+  line-height: 0.88;
+  letter-spacing: -0.07em;
+  text-shadow: 0 10px 28px rgba(255, 255, 255, 0.72);
+}
+
+.intro {
+  max-width: 640px;
+  margin: 18px 0 0;
+  font-size: clamp(1rem, 2vw, 1.28rem);
+  color: rgba(23, 32, 51, 0.78);
+}
+
+.season-selector {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.season-pill,
+.controls button,
+.overlay button {
+  border: 0;
+  border-radius: 999px;
+  padding: 13px 16px;
+  font: inherit;
+  font-weight: 900;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 12px 26px rgba(39, 45, 72, 0.14), inset 0 0 0 1px rgba(255,255,255,0.85);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.season-pill:hover,
+.controls button:hover,
+.overlay button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px rgba(39, 45, 72, 0.2), inset 0 0 0 1px rgba(255,255,255,0.95);
+}
+
+.season-pill.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white;
+}
+
+.game-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 34px;
+  padding: 18px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.68), rgba(255,255,255,0.32));
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(22px);
+}
+
+.hud {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.hud div {
+  border-radius: 20px;
+  padding: 12px 16px;
+  background: var(--glass);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.76);
+}
+
+.hud span {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(23, 32, 51, 0.52);
+}
+
+.hud strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 1.5rem;
+}
+
+.canvas-wrap {
+  position: relative;
+  border-radius: 26px;
+  overflow: hidden;
+  background: #0d1630;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.18);
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 48 / 31;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  padding: 28px;
+  text-align: center;
+  background: radial-gradient(circle, rgba(255,255,255,0.88), rgba(255,255,255,0.2) 58%, rgba(15,22,47,0.4));
+}
+
+.overlay.hidden { display: none; }
+
+.overlay h2 {
+  margin: 0 0 8px;
+  font-size: clamp(2rem, 5vw, 4.2rem);
+  letter-spacing: -0.05em;
+}
+
+.overlay p {
+  max-width: 520px;
+  margin: 0 auto 22px;
+  font-size: 1.08rem;
+}
+
+.overlay button {
+  width: fit-content;
+  margin: 0 auto;
+  padding: 15px 24px;
+  color: white;
+  background: linear-gradient(135deg, #7758ff, #ff6fae);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.controls p {
+  margin: 0 0 0 auto;
+  color: rgba(23, 32, 51, 0.68);
+}
+
+@media (max-width: 780px) {
+  .hero { grid-template-columns: 1fr; }
+  .hud { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .controls p { width: 100%; }
+}
