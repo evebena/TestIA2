@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Casse-brique des 4 saisons</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero" aria-labelledby="game-title">
+        <div>
+          <p class="eyebrow">Arcade poétique</p>
+          <h1 id="game-title">Casse-brique des 4 saisons</h1>
+          <p class="intro">
+            Traversez printemps, été, automne et hiver en libérant des constellations de briques saisonnières.
+          </p>
+        </div>
+        <div class="season-selector" aria-label="Choisir une saison">
+          <button class="season-pill active" data-season="spring">🌸 Printemps</button>
+          <button class="season-pill" data-season="summer">☀️ Été</button>
+          <button class="season-pill" data-season="autumn">🍂 Automne</button>
+          <button class="season-pill" data-season="winter">❄️ Hiver</button>
+        </div>
+      </section>
+
+      <section class="game-card">
+        <div class="hud" aria-live="polite">
+          <div><span>Score</span><strong id="score">0</strong></div>
+          <div><span>Vies</span><strong id="lives">3</strong></div>
+          <div><span>Saison</span><strong id="season-name">Printemps</strong></div>
+          <div><span>Niveau</span><strong id="level">1</strong></div>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="game" width="960" height="620" aria-label="Jeu casse-brique des 4 saisons"></canvas>
+          <div id="overlay" class="overlay">
+            <h2>Prêt à éclore ?</h2>
+            <p>Déplacez la raquette avec la souris, le tactile ou les flèches. Appuyez sur Espace pour lancer.</p>
+            <button id="start-button">Lancer la partie</button>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="pause-button">Pause</button>
+          <button id="reset-button">Nouvelle partie</button>
+          <p>Astuce : changez de saison pour transformer l'ambiance, les briques et les particules.</p>
+        </div>
+      </section>
+    </main>
+    <script src="game.js"></script>
+  </body>
+</html>
