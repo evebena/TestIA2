@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Casse-brique Chamallow</title>
+  <style>
+    :root {
+      --pink-100: #fff0f7;
+      --pink-200: #ffd6ea;
+      --pink-300: #ffafd4;
+      --pink-500: #ff66ad;
+      --pink-700: #d63384;
+      --mallow: #fff9fb;
+      --mint: #9ff3dc;
+      --lemon: #fff3a6;
+      --lavender: #d8b4ff;
+      --shadow: rgba(214, 51, 132, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: #8f2f66;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.9) 0 7%, transparent 8%),
+        radial-gradient(circle at 82% 22%, rgba(255, 243, 166, 0.8) 0 6%, transparent 7%),
+        radial-gradient(circle at 72% 86%, rgba(216, 180, 255, 0.7) 0 8%, transparent 9%),
+        linear-gradient(135deg, #ffd6ea 0%, #fff0f7 45%, #ffc7e2 100%);
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      border-radius: 999px;
+      filter: blur(1px);
+      opacity: 0.75;
+      pointer-events: none;
+    }
+
+    body::before {
+      width: 28rem;
+      height: 28rem;
+      left: -9rem;
+      top: -8rem;
+      background: rgba(255, 102, 173, 0.22);
+    }
+
+    body::after {
+      width: 22rem;
+      height: 22rem;
+      right: -7rem;
+      bottom: -7rem;
+      background: rgba(255, 255, 255, 0.52);
+    }
+
+    .game-card {
+      width: min(94vw, 860px);
+      padding: 1.25rem;
+      border: 8px solid rgba(255, 255, 255, 0.72);
+      border-radius: 38px;
+      background: rgba(255, 249, 251, 0.72);
+      box-shadow: 0 28px 70px var(--shadow), inset 0 0 0 2px rgba(255, 102, 173, 0.12);
+      backdrop-filter: blur(12px);
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      padding: 0 0.35rem;
+    }
+
+    h1 {
+      margin: 0;
+      line-height: 1;
+      font-size: clamp(1.8rem, 4vw, 3.3rem);
+      color: var(--pink-700);
+      text-shadow: 0 4px 0 #fff, 0 9px 18px rgba(214, 51, 132, 0.18);
+      letter-spacing: 0.03em;
+    }
+
+    .subtitle {
+      margin: 0.35rem 0 0;
+      font-weight: 700;
+      color: #b1457e;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(70px, 1fr));
+      gap: 0.55rem;
+      min-width: min(330px, 45vw);
+    }
+
+    .stat {
+      padding: 0.75rem 0.85rem;
+      text-align: center;
+      border-radius: 22px;
+      background: linear-gradient(180deg, #fff, #ffe1ef);
+      box-shadow: 0 8px 16px rgba(214, 51, 132, 0.12);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .stat span {
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 900;
+      color: #d63384;
+    }
+
+    .stat strong {
+      font-size: 1.4rem;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      border-radius: 30px;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.35) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.35) 2px, transparent 2px),
+        linear-gradient(180deg, #fff8fc 0%, #ffd4e8 100%);
+      background-size: 46px 46px, 46px 46px, auto;
+      box-shadow: inset 0 0 28px rgba(214, 51, 132, 0.18), 0 12px 25px rgba(214, 51, 132, 0.16);
+    }
+
+    canvas {
+      width: 100%;
+      display: block;
+      touch-action: none;
+      cursor: none;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      text-align: center;
+      background: rgba(255, 240, 247, 0.52);
+      transition: opacity 0.2s ease;
+    }
+
+    .overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .bubble {
+      max-width: 520px;
+      padding: 1.7rem;
+      border-radius: 34px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 4px solid rgba(255, 175, 212, 0.7);
+      box-shadow: 0 18px 38px rgba(214, 51, 132, 0.18);
+    }
+
+    .bubble h2 {
+      margin: 0 0 0.4rem;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      color: var(--pink-700);
+    }
+
+    .bubble p {
+      margin: 0.35rem 0 1rem;
+      font-weight: 800;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 0.95rem 1.45rem;
+      font-weight: 950;
+      color: #fff;
+      background: linear-gradient(135deg, #ff66ad, #d63384);
+      box-shadow: 0 10px 0 #ad276a, 0 18px 25px rgba(214, 51, 132, 0.25);
+      cursor: pointer;
+      transform: translateY(0);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    button:active {
+      transform: translateY(7px);
+      box-shadow: 0 3px 0 #ad276a, 0 9px 16px rgba(214, 51, 132, 0.22);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      justify-content: center;
+      margin-top: 0.9rem;
+      font-weight: 900;
+      color: #9a3b6f;
+    }
+
+    .key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: inset 0 -3px 0 #ffd0e6;
+      color: var(--pink-700);
+    }
+
+    @media (max-width: 720px) {
+      body {
+        overflow: auto;
+        padding: 1rem 0;
+      }
+
+      header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .stats {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-card" aria-label="Jeu casse-brique rose bonbon et chamallow">
+    <header>
+      <div>
+        <h1>Casse-brique Chamallow</h1>
+        <p class="subtitle">Explose les briques sucrées sans laisser tomber la boule guimauve !</p>
+      </div>
+      <section class="stats" aria-label="Statistiques de partie">
+        <div class="stat"><span>Score</span><strong id="score">0</strong></div>
+        <div class="stat"><span>Vies</span><strong id="lives">3</strong></div>
+        <div class="stat"><span>Niveau</span><strong id="level">1</strong></div>
+      </section>
+    </header>
+
+    <section class="canvas-wrap">
+      <canvas id="game" width="800" height="520" aria-label="Zone de jeu casse-brique"></canvas>
+      <div class="overlay" id="overlay">
+        <div class="bubble">
+          <h2 id="overlay-title">Prêt·e à croquer ?</h2>
+          <p id="overlay-text">Déplace la raquette bonbon avec la souris, le doigt ou les flèches.</p>
+          <button id="start-button" type="button">Lancer la partie 🍬</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="controls" aria-label="Contrôles">
+      <span><span class="key">←</span> <span class="key">→</span> déplacer</span>
+      <span><span class="key">Espace</span> pause / reprise</span>
+      <span><span class="key">Souris</span> ou <span class="key">doigt</span> glisser</span>
+    </div>
+  </main>
+
+  <script>
+    const canvas = document.querySelector("#game");
+    const ctx = canvas.getContext("2d");
+    const scoreEl = document.querySelector("#score");
+    const livesEl = document.querySelector("#lives");
+    const levelEl = document.querySelector("#level");
+    const overlay = document.querySelector("#overlay");
+    const overlayTitle = document.querySelector("#overlay-title");
+    const overlayText = document.querySelector("#overlay-text");
+    const startButton = document.querySelector("#start-button");
+
+    const candyColors = ["#ff66ad", "#ffafd4", "#d8b4ff", "#fff3a6", "#9ff3dc"];
+    const state = {
+      score: 0,
+      lives: 3,
+      level: 1,
+      running: false,
+      paused: false,
+      rightPressed: false,
+      leftPressed: false,
+    };
+
+    const paddle = {
+      width: 128,
+      height: 18,
+      x: canvas.width / 2 - 64,
+      y: canvas.height - 44,
+      speed: 9,
+    };
+
+    const ball = {
+      x: canvas.width / 2,
+      y: canvas.height - 70,
+      radius: 12,
+      dx: 4,
+      dy: -4,
+    };
+
+    let bricks = [];
+    const brickSettings = {
+      rows: 5,
+      cols: 9,
+      width: 74,
+      height: 26,
+      padding: 10,
+      offsetTop: 78,
+      offsetLeft: 36,
+    };
+
+    function resetBall() {
+      ball.x = canvas.width / 2;
+      ball.y = canvas.height - 70;
+      ball.dx = (Math.random() > 0.5 ? 1 : -1) * (4 + state.level * 0.35);
+      ball.dy = -(4 + state.level * 0.25);
+      paddle.x = canvas.width / 2 - paddle.width / 2;
+    }
+
+    function makeBricks() {
+      bricks = [];
+      brickSettings.rows = Math.min(7, 4 + state.level);
+      for (let row = 0; row < brickSettings.rows; row += 1) {
+        for (let col = 0; col < brickSettings.cols; col += 1) {
+          const x = brickSettings.offsetLeft + col * (brickSettings.width + brickSettings.padding);
+          const y = brickSettings.offsetTop + row * (brickSettings.height + brickSettings.padding);
+          bricks.push({
+            x,
+            y,
+            status: 1,
+            color: candyColors[(row + col + state.level) % candyColors.length],
+            points: (brickSettings.rows - row) * 10,
+          });
+        }
+      }
+    }
+
+    function drawRoundedRect(x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    function drawCandySprinkles() {
+      ctx.save();
+      ctx.globalAlpha = 0.55;
+      for (let i = 0; i < 40; i += 1) {
+        const x = (i * 97) % canvas.width;
+        const y = (i * 53) % canvas.height;
+        ctx.translate(x, y);
+        ctx.rotate((i * 17) * Math.PI / 180);
+        ctx.fillStyle = candyColors[i % candyColors.length];
+        drawRoundedRect(-9, -2, 18, 4, 2);
+        ctx.fill();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+      }
+      ctx.restore();
+    }
+
+    function drawBricks() {
+      bricks.forEach((brick) => {
+        if (!brick.status) return;
+        ctx.save();
+        ctx.shadowColor = "rgba(214, 51, 132, 0.22)";
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetY = 6;
+        drawRoundedRect(brick.x, brick.y, brickSettings.width, brickSettings.height, 13);
+        ctx.fillStyle = brick.color;
+        ctx.fill();
+        ctx.shadowColor = "transparent";
+        ctx.globalAlpha = 0.55;
+        ctx.fillStyle = "#fff";
+        drawRoundedRect(brick.x + 9, brick.y + 5, brickSettings.width - 18, 7, 5);
+        ctx.fill();
+        ctx.restore();
+      });
+    }
+
+    function drawPaddle() {
+      const gradient = ctx.createLinearGradient(paddle.x, paddle.y, paddle.x, paddle.y + paddle.height);
+      gradient.addColorStop(0, "#fff");
+      gradient.addColorStop(0.45, "#ffafd4");
+      gradient.addColorStop(1, "#ff66ad");
+      ctx.save();
+      ctx.shadowColor = "rgba(214, 51, 132, 0.35)";
+      ctx.shadowBlur = 16;
+      ctx.shadowOffsetY = 7;
+      drawRoundedRect(paddle.x, paddle.y, paddle.width, paddle.height, 12);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawBall() {
+      const glow = ctx.createRadialGradient(ball.x - 4, ball.y - 6, 2, ball.x, ball.y, ball.radius + 8);
+      glow.addColorStop(0, "#ffffff");
+      glow.addColorStop(0.5, "#fff0f7");
+      glow.addColorStop(1, "#ff66ad");
+      ctx.save();
+      ctx.shadowColor = "rgba(255, 102, 173, 0.6)";
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+      ctx.fillStyle = glow;
+      ctx.fill();
+      ctx.closePath();
+      ctx.restore();
+    }
+
+    function drawScene() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawCandySprinkles();
+      drawBricks();
+      drawPaddle();
+      drawBall();
+    }
+
+    function collisionDetection() {
+      bricks.forEach((brick) => {
+        if (!brick.status) return;
+        const hitX = ball.x > brick.x && ball.x < brick.x + brickSettings.width;
+        const hitY = ball.y > brick.y && ball.y < brick.y + brickSettings.height;
+        if (hitX && hitY) {
+          ball.dy = -ball.dy;
+          brick.status = 0;
+          state.score += brick.points;
+          updateStats();
+        }
+      });
+
+      if (bricks.every((brick) => !brick.status)) {
+        state.level += 1;
+        updateStats();
+        makeBricks();
+        resetBall();
+        showOverlay("Délicieux niveau !", "Encore plus de briques chamallow arrivent...", "Continuer 🍭");
+        state.running = false;
+      }
+    }
+
+    function updateStats() {
+      scoreEl.textContent = state.score;
+      livesEl.textContent = state.lives;
+      levelEl.textContent = state.level;
+    }
+
+    function move() {
+      if (state.rightPressed) {
+        paddle.x = Math.min(canvas.width - paddle.width, paddle.x + paddle.speed);
+      }
+      if (state.leftPressed) {
+        paddle.x = Math.max(0, paddle.x - paddle.speed);
+      }
+
+      ball.x += ball.dx;
+      ball.y += ball.dy;
+
+      if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
+        ball.dx = -ball.dx;
+      }
+      if (ball.y - ball.radius < 0) {
+        ball.dy = -ball.dy;
+      }
+
+      const touchesPaddle =
+        ball.y + ball.radius > paddle.y &&
+        ball.x > paddle.x &&
+        ball.x < paddle.x + paddle.width;
+
+      if (touchesPaddle) {
+        const hitPoint = (ball.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
+        ball.dx = hitPoint * (6 + state.level * 0.35);
+        ball.dy = -Math.abs(ball.dy);
+      } else if (ball.y + ball.radius > canvas.height) {
+        state.lives -= 1;
+        updateStats();
+        if (state.lives <= 0) {
+          showOverlay("Oh non, tout a fondu !", `Score final : ${state.score}. Retente ta chance sucrée.`, "Rejouer 🍡");
+          state.score = 0;
+          state.lives = 3;
+          state.level = 1;
+          makeBricks();
+          resetBall();
+          updateStats();
+          state.running = false;
+        } else {
+          resetBall();
+        }
+      }
+    }
+
+    function loop() {
+      drawScene();
+      if (state.running && !state.paused) {
+        collisionDetection();
+        move();
+      }
+      requestAnimationFrame(loop);
+    }
+
+    function showOverlay(title, text, buttonLabel) {
+      overlayTitle.textContent = title;
+      overlayText.textContent = text;
+      startButton.textContent = buttonLabel;
+      overlay.classList.remove("hidden");
+    }
+
+    function startGame() {
+      state.running = true;
+      state.paused = false;
+      overlay.classList.add("hidden");
+    }
+
+    function setPaddleFromClientX(clientX) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const x = (clientX - rect.left) * scaleX;
+      paddle.x = Math.max(0, Math.min(canvas.width - paddle.width, x - paddle.width / 2));
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight") state.rightPressed = true;
+      if (event.key === "ArrowLeft") state.leftPressed = true;
+      if (event.code === "Space") {
+        event.preventDefault();
+        if (!state.running) {
+          startGame();
+        } else {
+          state.paused = !state.paused;
+          if (state.paused) showOverlay("Pause chamallow", "Appuie sur Espace ou sur le bouton pour repartir.", "Reprendre 🍬");
+          if (!state.paused) overlay.classList.add("hidden");
+        }
+      }
+    });
+
+    document.addEventListener("keyup", (event) => {
+      if (event.key === "ArrowRight") state.rightPressed = false;
+      if (event.key === "ArrowLeft") state.leftPressed = false;
+    });
+
+    canvas.addEventListener("mousemove", (event) => setPaddleFromClientX(event.clientX));
+    canvas.addEventListener("touchmove", (event) => {
+      event.preventDefault();
+      setPaddleFromClientX(event.touches[0].clientX);
+    }, { passive: false });
+    startButton.addEventListener("click", startGame);
+
+    makeBricks();
+    resetBall();
+    updateStats();
+    loop();
+  </script>
+</body>
+</html>
